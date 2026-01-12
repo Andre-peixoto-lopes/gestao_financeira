@@ -1,13 +1,7 @@
 {
   "functions": {
     "api/**/*.js": {
-      "runtime": "@vercel/node@3"
+      "runtime": "@vercel/node@18"
     }
-  },
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/admin", "dest": "/admin.html" },
-    { "src": "/", "dest": "/index.html" },
-    { "src": "/(.*)", "dest": "/$1" }
-  ]
+  }
 }

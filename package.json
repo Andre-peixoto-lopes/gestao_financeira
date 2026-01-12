@@ -4,7 +4,7 @@
   "description": "Sistema de Gestão Financeira Pessoal",
   "scripts": {
     "dev": "vercel dev",
-    "build": "echo 'Build complete'"
+    "build": ""
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

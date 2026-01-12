@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Gestão Financeira</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .login-box h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ffd700;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .login-box input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .login-box button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            color: #1a1a2e;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .login-box button:hover {
+            transform: scale(1.02);
+        }
+
+        .admin-container {
+            display: none;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .admin-header h1 {
+            color: #ffd700;
+        }
+
+        .btn-logout {
+            padding: 10px 20px;
+            background: #ff4757;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .tables-section {
+            display: grid;
+            gap: 20px;
+        }
+
+        .table-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-x: auto;
+        }
+
+        .table-card h2 {
+            margin-bottom: 15px;
+            color: #ffd700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table-card h2 .count {
+            background: rgba(255, 215, 0, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .badge-income {
+            background: rgba(46, 213, 115, 0.2);
+            color: #2ed573;
+        }
+
+        .badge-expense {
+            background: rgba(255, 71, 87, 0.2);
+            color: #ff4757;
+        }
+
+        .badge-paid {
+            background: rgba(46, 213, 115, 0.2);
+            color: #2ed573;
+        }
+
+        .badge-pending {
+            background: rgba(255, 165, 0, 0.2);
+            color: #ffa500;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            color: #1a1a2e;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .user-select {
+            padding: 10px 15px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 14px;
+            min-width: 200px;
+        }
+
+        .user-select option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .refresh-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .money-positive {
+            color: #2ed573;
+        }
+
+        .money-negative {
+            color: #ff4757;
+        }
+
+        @media (max-width: 768px) {
+            .admin-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .filter-bar {
+                flex-direction: column;
+            }
+
+            .user-select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Tela de Login -->
+    <div class="login-container" id="loginContainer">
+        <div class="login-box">
+            <h1>🔐 Admin</h1>
+            <input type="password" id="adminPassword" placeholder="Senha de administrador">
+            <button onclick="adminLogin()">Entrar</button>
+            <p id="loginError" style="color: #ff4757; text-align: center; margin-top: 15px;"></p>
+        </div>
+    </div>
+
+    <!-- Painel Admin -->
+    <div class="admin-container" id="adminContainer">
+        <div class="admin-header">
+            <h1>📊 Painel Administrativo</h1>
+            <button class="btn-logout" onclick="logout()">Sair</button>
+        </div>
+
+        <!-- Estatísticas -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>👥 Total de Usuários</h3>
+                <div class="value" id="totalUsers">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>💰 Total Transações</h3>
+                <div class="value" id="totalTransactions">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>📅 Despesas Fixas</h3>
+                <div class="value" id="totalFixed">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>🏦 Parcelas Ativas</h3>
+                <div class="value" id="totalInstallments">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>🐷 Caixinhas</h3>
+                <div class="value" id="totalSavings">0</div>
+            </div>
+        </div>
+
+        <!-- Filtro e Tabs -->
+        <div class="filter-bar">
+            <select class="user-select" id="userFilter" onchange="loadUserData()">
+                <option value="all">Todos os usuários</option>
+            </select>
+            <button class="refresh-btn" onclick="loadAllData()">🔄 Atualizar</button>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('users')">👥 Usuários</button>
+            <button class="tab-btn" onclick="showTab('transactions')">💳 Transações</button>
+            <button class="tab-btn" onclick="showTab('fixed')">📅 Despesas Fixas</button>
+            <button class="tab-btn" onclick="showTab('installments')">🏦 Parcelas</button>
+            <button class="tab-btn" onclick="showTab('savings')">🐷 Caixinhas</button>
+        </div>
+
+        <!-- Conteúdo das Tabs -->
+        <div class="tables-section">
+            <!-- Usuários -->
+            <div class="tab-content active" id="tab-users">
+                <div class="table-card">
+                    <h2>👥 Usuários <span class="count" id="usersCount">0</span></h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Usuário</th>
+                                <th>Nome</th>
+                                <th>Data Cadastro</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Transações -->
+            <div class="tab-content" id="tab-transactions">
+                <div class="table-card">
+                    <h2>💳 Transações <span class="count" id="transactionsCount">0</span></h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Usuário</th>
+                                <th>Tipo</th>
+                                <th>Descrição</th>
+                                <th>Valor</th>
+                                <th>Data</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Despesas Fixas -->
+            <div class="tab-content" id="tab-fixed">
+                <div class="table-card">
+                    <h2>📅 Despesas Fixas <span class="count" id="fixedCount">0</span></h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Usuário</th>
+                                <th>Descrição</th>
+                                <th>Valor</th>
+                                <th>Dia</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fixedTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Parcelas -->
+            <div class="tab-content" id="tab-installments">
+                <div class="table-card">
+                    <h2>🏦 Parcelas <span class="count" id="installmentsCount">0</span></h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Usuário</th>
+                                <th>Descrição</th>
+                                <th>Valor Total</th>
+                                <th>Parcela</th>
+                                <th>Progresso</th>
+                            </tr>
+                        </thead>
+                        <tbody id="installmentsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Caixinhas -->
+            <div class="tab-content" id="tab-savings">
+                <div class="table-card">
+                    <h2>🐷 Caixinhas <span class="count" id="savingsCount">0</span></h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Usuário</th>
+                                <th>Nome</th>
+                                <th>Meta</th>
+                                <th>Atual</th>
+                                <th>Progresso</th>
+                            </tr>
+                        </thead>
+                        <tbody id="savingsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+        let adminToken = localStorage.getItem('adminToken');
+
+        // Verificar se já está logado
+        if (adminToken) {
+            showAdmin();
+        }
+
+        async function adminLogin() {
+            const password = document.getElementById('adminPassword').value;
+            
+            try {
+                const response = await fetch(`${API_URL}/api/admin/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    adminToken = data.token;
+                    localStorage.setItem('adminToken', adminToken);
+                    showAdmin();
+                } else {
+                    document.getElementById('loginError').textContent = data.error;
+                }
+            } catch (error) {
+                document.getElementById('loginError').textContent = 'Erro ao conectar';
+            }
+        }
+
+        function showAdmin() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('adminContainer').style.display = 'block';
+            loadAllData();
+        }
+
+        function logout() {
+            localStorage.removeItem('adminToken');
+            location.reload();
+        }
+
+        async function loadAllData() {
+            try {
+                const response = await fetch(`${API_URL}/api/admin/data`, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+
+                if (response.status === 401) {
+                    logout();
+                    return;
+                }
+
+                const data = await response.json();
+                renderData(data);
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+            }
+        }
+
+        function renderData(data) {
+            // Estatísticas
+            document.getElementById('totalUsers').textContent = data.users.length;
+            document.getElementById('totalTransactions').textContent = data.transactions.length;
+            document.getElementById('totalFixed').textContent = data.fixedExpenses.length;
+            document.getElementById('totalInstallments').textContent = data.installments.length;
+            document.getElementById('totalSavings').textContent = data.savings.length;
+
+            // Popular select de usuários
+            const userSelect = document.getElementById('userFilter');
+            userSelect.innerHTML = '<option value="all">Todos os usuários</option>';
+            data.users.forEach(user => {
+                userSelect.innerHTML += `<option value="${user.id}">${user.username}</option>`;
+            });
+
+            // Counts
+            document.getElementById('usersCount').textContent = data.users.length;
+            document.getElementById('transactionsCount').textContent = data.transactions.length;
+            document.getElementById('fixedCount').textContent = data.fixedExpenses.length;
+            document.getElementById('installmentsCount').textContent = data.installments.length;
+            document.getElementById('savingsCount').textContent = data.savings.length;
+
+            // Tabela de Usuários
+            const usersTable = document.getElementById('usersTable');
+            usersTable.innerHTML = data.users.map(u => `
+                <tr>
+                    <td>${u.id}</td>
+                    <td>${u.username}</td>
+                    <td>${u.name || '-'}</td>
+                    <td>${formatDate(u.created_at)}</td>
+                </tr>
+            `).join('') || '<tr><td colspan="4" class="empty-state">Nenhum usuário</td></tr>';
+
+            // Tabela de Transações
+            const transactionsTable = document.getElementById('transactionsTable');
+            transactionsTable.innerHTML = data.transactions.map(t => `
+                <tr>
+                    <td>${t.id}</td>
+                    <td>${getUserName(data.users, t.user_id)}</td>
+                    <td><span class="badge ${t.type === 'income' ? 'badge-income' : 'badge-expense'}">${t.type === 'income' ? 'Receita' : 'Despesa'}</span></td>
+                    <td>${t.description}</td>
+                    <td class="${t.type === 'income' ? 'money-positive' : 'money-negative'}">${formatMoney(t.value)}</td>
+                    <td>${t.date}</td>
+                </tr>
+            `).join('') || '<tr><td colspan="6" class="empty-state">Nenhuma transação</td></tr>';
+
+            // Tabela de Despesas Fixas
+            const fixedTable = document.getElementById('fixedTable');
+            fixedTable.innerHTML = data.fixedExpenses.map(f => `
+                <tr>
+                    <td>${f.id}</td>
+                    <td>${getUserName(data.users, f.user_id)}</td>
+                    <td>${f.description}</td>
+                    <td class="money-negative">${formatMoney(f.value)}</td>
+                    <td>Dia ${f.day}</td>
+                    <td><span class="badge ${f.paid ? 'badge-paid' : 'badge-pending'}">${f.paid ? 'Pago' : 'Pendente'}</span></td>
+                </tr>
+            `).join('') || '<tr><td colspan="6" class="empty-state">Nenhuma despesa fixa</td></tr>';
+
+            // Tabela de Parcelas
+            const installmentsTable = document.getElementById('installmentsTable');
+            installmentsTable.innerHTML = data.installments.map(i => `
+                <tr>
+                    <td>${i.id}</td>
+                    <td>${getUserName(data.users, i.user_id)}</td>
+                    <td>${i.description}</td>
+                    <td class="money-negative">${formatMoney(i.total_value)}</td>
+                    <td>${formatMoney(i.installment_value)}</td>
+                    <td>${i.paid_installments}/${i.total_installments}</td>
+                </tr>
+            `).join('') || '<tr><td colspan="6" class="empty-state">Nenhuma parcela</td></tr>';
+
+            // Tabela de Caixinhas
+            const savingsTable = document.getElementById('savingsTable');
+            savingsTable.innerHTML = data.savings.map(s => {
+                const progress = s.goal > 0 ? Math.round((s.current_value / s.goal) * 100) : 0;
+                return `
+                <tr>
+                    <td>${s.id}</td>
+                    <td>${getUserName(data.users, s.user_id)}</td>
+                    <td>${s.name}</td>
+                    <td class="money-positive">${formatMoney(s.goal)}</td>
+                    <td class="money-positive">${formatMoney(s.current_value)}</td>
+                    <td>${progress}%</td>
+                </tr>
+            `}).join('') || '<tr><td colspan="6" class="empty-state">Nenhuma caixinha</td></tr>';
+
+            // Salvar dados para filtro
+            window.allData = data;
+        }
+
+        function loadUserData() {
+            const userId = document.getElementById('userFilter').value;
+            if (userId === 'all') {
+                renderData(window.allData);
+            } else {
+                const filtered = {
+                    users: window.allData.users.filter(u => u.id == userId),
+                    transactions: window.allData.transactions.filter(t => t.user_id == userId),
+                    fixedExpenses: window.allData.fixedExpenses.filter(f => f.user_id == userId),
+                    installments: window.allData.installments.filter(i => i.user_id == userId),
+                    savings: window.allData.savings.filter(s => s.user_id == userId)
+                };
+                renderData(filtered);
+            }
+        }
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        function formatMoney(value) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value || 0);
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            try {
+                return new Date(dateStr).toLocaleDateString('pt-BR');
+            } catch {
+                return dateStr;
+            }
+        }
+
+        function getUserName(users, userId) {
+            const user = users.find(u => u.id === userId);
+            return user ? user.username : `ID: ${userId}`;
+        }
+
+        // Enter para login
+        document.getElementById('adminPassword').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') adminLogin();
+        });
+    </script>
+</body>
+</html>

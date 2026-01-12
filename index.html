@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão Financeira Pessoal</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Tela de Login/Cadastro -->
+    <div id="login-screen" class="screen active">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-icon">💰</div>
+                <h1>Gestão Financeira</h1>
+                <p class="login-subtitle">Controle suas finanças de forma simples e eficiente</p>
+                
+                <!-- Tabs de Login/Cadastro -->
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-tab="login">Entrar</button>
+                    <button class="auth-tab" data-tab="register">Cadastrar</button>
+                </div>
+
+                <!-- Formulário de Login -->
+                <form id="login-form" class="auth-form active">
+                    <div class="input-group">
+                        <label for="login-username">Usuário</label>
+                        <input type="text" id="login-username" placeholder="Digite seu usuário" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="login-password">Senha</label>
+                        <input type="password" id="login-password" placeholder="Digite sua senha" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        Entrar <span class="arrow">→</span>
+                    </button>
+                    <p class="auth-message" id="login-message"></p>
+                </form>
+
+                <!-- Formulário de Cadastro -->
+                <form id="register-form" class="auth-form">
+                    <div class="input-group">
+                        <label for="register-name">Nome completo</label>
+                        <input type="text" id="register-name" placeholder="Ex: André Silva" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="register-username">Usuário</label>
+                        <input type="text" id="register-username" placeholder="Ex: andre" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="register-password">Senha</label>
+                        <input type="password" id="register-password" placeholder="Mínimo 4 caracteres" required minlength="4">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        Criar Conta <span class="arrow">→</span>
+                    </button>
+                    <p class="auth-message" id="register-message"></p>
+                </form>
+
+                <!-- Lista de usuários cadastrados -->
+                <div class="registered-users" id="registered-users">
+                    <p class="users-title">Usuários cadastrados:</p>
+                    <div class="users-list" id="users-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tela Principal (Dashboard) -->
+    <div id="main-screen" class="screen">
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">💰</div>
+                <h1>Olá, <span id="user-display"></span>!</h1>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-btn active" data-page="dashboard">📊 Dashboard</button>
+                <button class="nav-btn" data-page="transactions">💳 Transações</button>
+                <button class="nav-btn" data-page="fixed-expenses">📌 Fixos</button>
+                <button class="nav-btn" data-page="installments">📅 Parcelas</button>
+                <button class="nav-btn" data-page="savings">🐷 Caixinhas</button>
+                <button class="nav-btn" data-page="reports">📈 Relatórios</button>
+            </nav>
+            <button class="menu-toggle" id="menu-toggle">☰</button>
+            <button class="btn btn-outline btn-logout" id="logout-btn">Sair</button>
+        </header>
+
+        <!-- Menu Mobile -->
+        <div class="mobile-menu" id="mobile-menu">
+            <button class="nav-btn active" data-page="dashboard">📊 Dashboard</button>
+            <button class="nav-btn" data-page="transactions">💳 Transações</button>
+            <button class="nav-btn" data-page="fixed-expenses">📌 Fixos</button>
+            <button class="nav-btn" data-page="installments">📅 Parcelas</button>
+            <button class="nav-btn" data-page="savings">🐷 Caixinhas</button>
+            <button class="nav-btn" data-page="reports">📈 Relatórios</button>
+        </div>
+
+        <main class="main-content">
+            <!-- Dashboard -->
+            <section id="dashboard" class="page active">
+                <div class="page-header">
+                    <h2>Dashboard</h2>
+                    <div class="month-selector">
+                        <button class="btn btn-icon" id="prev-month">◀</button>
+                        <span id="current-month"></span>
+                        <button class="btn btn-icon" id="next-month">▶</button>
+                    </div>
+                </div>
+
+                <div class="cards-grid">
+                    <div class="card card-income">
+                        <div class="card-icon">📈</div>
+                        <div class="card-content">
+                            <span class="card-label">Receitas</span>
+                            <span class="card-value" id="total-income">R$ 0,00</span>
+                        </div>
+                    </div>
+                    <div class="card card-expense">
+                        <div class="card-icon">📉</div>
+                        <div class="card-content">
+                            <span class="card-label">Despesas</span>
+                            <span class="card-value" id="total-expense">R$ 0,00</span>
+                        </div>
+                    </div>
+                    <div class="card card-balance">
+                        <div class="card-icon">💵</div>
+                        <div class="card-content">
+                            <span class="card-label">Saldo</span>
+                            <span class="card-value" id="total-balance">R$ 0,00</span>
+                        </div>
+                    </div>
+                    <div class="card card-savings">
+                        <div class="card-icon">🐷</div>
+                        <div class="card-content">
+                            <span class="card-label">Total Guardado</span>
+                            <span class="card-value" id="total-savings">R$ 0,00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="panel">
+                        <h3>Resumo de Gastos por Categoria</h3>
+                        <canvas id="expense-chart"></canvas>
+                    </div>
+                    <div class="panel">
+                        <h3>Últimas Transações</h3>
+                        <div id="recent-transactions" class="transaction-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Transações -->
+            <section id="transactions" class="page">
+                <div class="page-header">
+                    <h2>Transações</h2>
+                    <button class="btn btn-primary" id="add-transaction-btn">+ Nova Transação</button>
+                </div>
+
+                <div class="filters">
+                    <select id="filter-type">
+                        <option value="all">Todos os tipos</option>
+                        <option value="income">Receitas</option>
+                        <option value="expense">Despesas</option>
+                    </select>
+                    <select id="filter-category">
+                        <option value="all">Todas as categorias</option>
+                    </select>
+                </div>
+
+                <div id="transactions-list" class="transaction-list"></div>
+            </section>
+
+            <!-- Gastos Fixos -->
+            <section id="fixed-expenses" class="page">
+                <div class="page-header">
+                    <h2>Despesas Fixas Mensais</h2>
+                    <button class="btn btn-primary" id="add-fixed-btn">+ Nova Despesa Fixa</button>
+                </div>
+
+                <div class="info-box">
+                    <span class="info-icon">ℹ️</span>
+                    <p>Despesas fixas são adicionadas automaticamente todo mês. Você pode marcar como paga quando efetuar o pagamento.</p>
+                </div>
+
+                <div id="fixed-expenses-list" class="fixed-list"></div>
+            </section>
+
+            <!-- Parcelas -->
+            <section id="installments" class="page">
+                <div class="page-header">
+                    <h2>Compras Parceladas</h2>
+                    <button class="btn btn-primary" id="add-installment-btn">+ Nova Compra Parcelada</button>
+                </div>
+
+                <div id="installments-list" class="installments-list"></div>
+            </section>
+
+            <!-- Caixinhas -->
+            <section id="savings" class="page">
+                <div class="page-header">
+                    <h2>Caixinhas de Poupança</h2>
+                    <button class="btn btn-primary" id="add-savings-btn">+ Nova Caixinha</button>
+                </div>
+
+                <div class="savings-config">
+                    <div class="config-item">
+                        <label>Porcentagem para investir/guardar:</label>
+                        <div class="input-with-suffix">
+                            <input type="number" id="savings-percentage" min="0" max="100" value="20">
+                            <span>%</span>
+                        </div>
+                        <button class="btn btn-secondary" id="save-percentage">Salvar</button>
+                    </div>
+                </div>
+
+                <div id="savings-boxes" class="savings-grid"></div>
+            </section>
+
+            <!-- Relatórios -->
+            <section id="reports" class="page">
+                <div class="page-header">
+                    <h2>Relatórios e Gráficos</h2>
+                    <div class="report-period-selector">
+                        <label>Período:</label>
+                        <select id="report-period">
+                            <option value="6">Últimos 6 meses</option>
+                            <option value="12" selected>Últimos 12 meses</option>
+                            <option value="24">Últimos 24 meses</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Resumo Comparativo -->
+                <div class="comparison-summary" id="comparison-summary">
+                    <h3>📊 Comparativo do Período</h3>
+                    <div class="comparison-cards">
+                        <div class="comparison-card">
+                            <span class="comparison-label">Total de Receitas</span>
+                            <span class="comparison-value income" id="report-total-income">R$ 0,00</span>
+                        </div>
+                        <div class="comparison-card">
+                            <span class="comparison-label">Total de Despesas</span>
+                            <span class="comparison-value expense" id="report-total-expense">R$ 0,00</span>
+                        </div>
+                        <div class="comparison-card">
+                            <span class="comparison-label">Saldo do Período</span>
+                            <span class="comparison-value" id="report-total-balance">R$ 0,00</span>
+                        </div>
+                        <div class="comparison-card">
+                            <span class="comparison-label">Média Mensal (Receita)</span>
+                            <span class="comparison-value" id="report-avg-income">R$ 0,00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reports-grid">
+                    <div class="panel panel-full">
+                        <h3>📈 Comparativo Mensal (Receitas vs Despesas vs Saldo)</h3>
+                        <canvas id="monthly-chart"></canvas>
+                    </div>
+                    
+                    <div class="panel panel-full">
+                        <h3>📉 Tabela Comparativa por Mês</h3>
+                        <div class="table-container">
+                            <table class="report-table" id="monthly-table">
+                                <thead>
+                                    <tr>
+                                        <th>Mês</th>
+                                        <th>Receitas</th>
+                                        <th>Despesas</th>
+                                        <th>Saldo</th>
+                                        <th>Guardado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="monthly-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <h3>🍕 Distribuição de Despesas</h3>
+                        <canvas id="expense-distribution-chart"></canvas>
+                    </div>
+                    <div class="panel">
+                        <h3>🐷 Evolução das Caixinhas</h3>
+                        <canvas id="savings-evolution-chart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal de Transação -->
+    <div id="transaction-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nova Transação</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="transaction-form">
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Tipo</label>
+                        <select id="trans-type" required>
+                            <option value="income">Receita</option>
+                            <option value="expense">Despesa</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Valor</label>
+                        <input type="number" id="trans-value" step="0.01" min="0" required placeholder="0,00">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Descrição</label>
+                    <input type="text" id="trans-description" required placeholder="Ex: Salário, Mercado...">
+                </div>
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Categoria</label>
+                        <select id="trans-category" required>
+                            <option value="">Selecione...</option>
+                            <option value="salario">Salário</option>
+                            <option value="freelance">Freelance</option>
+                            <option value="alimentacao">Alimentação</option>
+                            <option value="transporte">Transporte</option>
+                            <option value="lazer">Lazer</option>
+                            <option value="saude">Saúde</option>
+                            <option value="educacao">Educação</option>
+                            <option value="moradia">Moradia</option>
+                            <option value="outros">Outros</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Data</label>
+                        <input type="date" id="trans-date" required>
+                    </div>
+                </div>
+                
+                <!-- Divisão de Despesas -->
+                <div class="split-expense-section" id="split-expense-section">
+                    <div class="input-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="trans-split">
+                            <span>Dividir esta despesa</span>
+                        </label>
+                    </div>
+                    <div class="split-details" id="split-details" style="display: none;">
+                        <div class="input-group">
+                            <label>Dividir entre quantas pessoas?</label>
+                            <input type="number" id="trans-split-count" min="2" max="20" value="2" placeholder="2">
+                        </div>
+                        <div class="split-result" id="split-result">
+                            <span class="split-label">Seu valor:</span>
+                            <span class="split-value" id="split-value">R$ 0,00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline modal-cancel">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Despesa Fixa -->
+    <div id="fixed-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nova Despesa Fixa</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="fixed-form">
+                <div class="input-group">
+                    <label>Nome da Despesa</label>
+                    <input type="text" id="fixed-name" required placeholder="Ex: Faculdade, Aluguel...">
+                </div>
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Valor Mensal</label>
+                        <input type="number" id="fixed-value" step="0.01" min="0" required placeholder="0,00">
+                    </div>
+                    <div class="input-group">
+                        <label>Dia do Vencimento</label>
+                        <input type="number" id="fixed-day" min="1" max="31" required placeholder="1-31">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Categoria</label>
+                    <select id="fixed-category" required>
+                        <option value="">Selecione...</option>
+                        <option value="moradia">Moradia</option>
+                        <option value="educacao">Educação</option>
+                        <option value="transporte">Transporte</option>
+                        <option value="saude">Saúde</option>
+                        <option value="servicos">Serviços</option>
+                        <option value="outros">Outros</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline modal-cancel">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Parcelas -->
+    <div id="installment-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nova Compra Parcelada</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="installment-form">
+                <div class="input-group">
+                    <label>Descrição da Compra</label>
+                    <input type="text" id="inst-description" required placeholder="Ex: iPhone, Geladeira...">
+                </div>
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Valor Total</label>
+                        <input type="number" id="inst-total" step="0.01" min="0" required placeholder="0,00">
+                    </div>
+                    <div class="input-group">
+                        <label>Número de Parcelas</label>
+                        <input type="number" id="inst-installments" min="1" max="72" required placeholder="12">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Parcelas já pagas</label>
+                        <input type="number" id="inst-paid" min="0" value="0" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Data da Primeira Parcela</label>
+                        <input type="date" id="inst-start-date" required>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Categoria</label>
+                    <select id="inst-category" required>
+                        <option value="">Selecione...</option>
+                        <option value="eletronicos">Eletrônicos</option>
+                        <option value="eletrodomesticos">Eletrodomésticos</option>
+                        <option value="moveis">Móveis</option>
+                        <option value="vestuario">Vestuário</option>
+                        <option value="viagem">Viagem</option>
+                        <option value="outros">Outros</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline modal-cancel">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Caixinha -->
+    <div id="savings-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nova Caixinha</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="savings-form">
+                <div class="input-group">
+                    <label>Nome da Caixinha</label>
+                    <input type="text" id="savings-name" required placeholder="Ex: Reserva de Emergência, IPTU...">
+                </div>
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Meta (opcional)</label>
+                        <input type="number" id="savings-goal" step="0.01" min="0" placeholder="0,00">
+                    </div>
+                    <div class="input-group">
+                        <label>Valor Inicial</label>
+                        <input type="number" id="savings-initial" step="0.01" min="0" value="0" placeholder="0,00">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Ícone</label>
+                    <div class="icon-selector" id="icon-selector">
+                        <span class="icon-option selected" data-icon="🐷">🐷</span>
+                        <span class="icon-option" data-icon="🏠">🏠</span>
+                        <span class="icon-option" data-icon="🚗">🚗</span>
+                        <span class="icon-option" data-icon="✈️">✈️</span>
+                        <span class="icon-option" data-icon="👕">👕</span>
+                        <span class="icon-option" data-icon="📱">📱</span>
+                        <span class="icon-option" data-icon="🎓">🎓</span>
+                        <span class="icon-option" data-icon="💊">💊</span>
+                        <span class="icon-option" data-icon="🎁">🎁</span>
+                        <span class="icon-option" data-icon="💎">💎</span>
+                        <span class="icon-option" data-icon="🏦">🏦</span>
+                        <span class="icon-option" data-icon="⚡">⚡</span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Cor</label>
+                    <div class="color-selector" id="color-selector">
+                        <span class="color-option selected" data-color="#4CAF50" style="background:#4CAF50"></span>
+                        <span class="color-option" data-color="#2196F3" style="background:#2196F3"></span>
+                        <span class="color-option" data-color="#9C27B0" style="background:#9C27B0"></span>
+                        <span class="color-option" data-color="#FF9800" style="background:#FF9800"></span>
+                        <span class="color-option" data-color="#E91E63" style="background:#E91E63"></span>
+                        <span class="color-option" data-color="#00BCD4" style="background:#00BCD4"></span>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline modal-cancel">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Depósito/Saque na Caixinha -->
+    <div id="savings-action-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="savings-action-title">Depositar na Caixinha</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="savings-action-form">
+                <input type="hidden" id="savings-action-id">
+                <input type="hidden" id="savings-action-type">
+                <div class="input-group">
+                    <label>Valor</label>
+                    <input type="number" id="savings-action-value" step="0.01" min="0" required placeholder="0,00">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline modal-cancel">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Confirmar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

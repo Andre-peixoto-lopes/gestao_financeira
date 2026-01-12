@@ -1,0 +1,14 @@
+{
+  "name": "gestao-financeira",
+  "version": "1.0.0",
+  "description": "Sistema de Gestão Financeira Pessoal",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'Build complete'"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.11.3"
+  }
+}

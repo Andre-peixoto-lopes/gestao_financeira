@@ -1,0 +1,123 @@
+const bcrypt = require('bcryptjs');
+const { getPool, initDatabase } = require('./_db');
+const { generateToken, badRequest, serverError } = require('./_auth');
+
+module.exports = async (req, res) => {
+    // CORS
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
+    try {
+        await initDatabase();
+        const pool = getPool();
+
+        // POST /api/auth - Login ou Register
+        if (req.method === 'POST') {
+            const { action, name, username, password } = req.body;
+
+            if (!username || !password) {
+                return badRequest(res, 'Usuário e senha são obrigatórios');
+            }
+
+            if (action === 'register') {
+                // Registrar novo usuário
+                if (!name) {
+                    return badRequest(res, 'Nome é obrigatório');
+                }
+
+                if (password.length < 4) {
+                    return badRequest(res, 'Senha deve ter no mínimo 4 caracteres');
+                }
+
+                // Verificar se já existe
+                const existing = await pool.query(
+                    'SELECT id FROM users WHERE username = $1',
+                    [username.toLowerCase()]
+                );
+
+                if (existing.rows.length > 0) {
+                    return badRequest(res, 'Este usuário já existe');
+                }
+
+                // Criptografar senha
+                const hashedPassword = await bcrypt.hash(password, 10);
+
+                // Inserir usuário
+                const result = await pool.query(
+                    'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id',
+                    [username.toLowerCase(), hashedPassword]
+                );
+
+                const userId = result.rows[0].id;
+
+                // Criar configurações padrão
+                await pool.query(
+                    'INSERT INTO user_settings (user_id, settings) VALUES ($1, $2)',
+                    [userId, JSON.stringify({ name, savingsPercentage: 20 })]
+                );
+
+                const token = generateToken(userId);
+
+                return res.status(201).json({
+                    token,
+                    user: { id: userId, name, username: username.toLowerCase() }
+                });
+
+            } else {
+                // Login
+                const result = await pool.query(
+                    'SELECT u.*, us.settings FROM users u LEFT JOIN user_settings us ON u.id = us.user_id WHERE u.username = $1',
+                    [username.toLowerCase()]
+                );
+
+                if (result.rows.length === 0) {
+                    return res.status(401).json({ error: 'Usuário ou senha incorretos' });
+                }
+
+                const user = result.rows[0];
+                const validPassword = await bcrypt.compare(password, user.password);
+
+                if (!validPassword) {
+                    return res.status(401).json({ error: 'Usuário ou senha incorretos' });
+                }
+
+                const settings = user.settings || {};
+                const token = generateToken(user.id);
+
+                return res.json({
+                    token,
+                    user: {
+                        id: user.id,
+                        name: settings.name || username,
+                        username: user.username
+                    }
+                });
+            }
+        }
+
+        // GET /api/auth - Listar usuários
+        if (req.method === 'GET') {
+            const result = await pool.query(
+                'SELECT u.id, u.username, us.settings FROM users u LEFT JOIN user_settings us ON u.id = us.user_id ORDER BY u.username'
+            );
+
+            const users = result.rows.map(u => ({
+                id: u.id,
+                name: u.settings?.name || u.username,
+                username: u.username
+            }));
+
+            return res.json(users);
+        }
+
+        res.status(405).json({ error: 'Método não permitido' });
+
+    } catch (error) {
+        serverError(res, error);
+    }
+};

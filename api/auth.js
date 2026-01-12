@@ -113,6 +113,11 @@ module.exports = async (req, res) => {
 
     } catch (error) {
         console.error('Auth Error:', error);
-        return res.status(500).json({ error: 'Erro interno', details: error.message });
+        return res.status(500).json({ 
+            error: 'Erro interno', 
+            details: error.message,
+            stack: error.stack,
+            dbUrl: process.env.DATABASE_URL ? 'configured' : 'NOT SET'
+        });
     }
 };

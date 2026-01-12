@@ -75,6 +75,11 @@ module.exports = async (req, res) => {
         res.status(405).json({ error: 'Método não permitido' });
 
     } catch (error) {
-        serverError(res, error);
+        console.error('Admin Error:', error);
+        return res.status(500).json({ 
+            error: 'Erro ao conectar', 
+            details: error.message,
+            dbConfigured: process.env.DATABASE_URL ? 'yes' : 'NO - DATABASE_URL NOT SET'
+        });
     }
 };

@@ -19,19 +19,21 @@ module.exports = async (req, res) => {
         // POST /api/auth - Login ou Register
         if (req.method === 'POST') {
             const { action, name, username, password } = req.body;
+            
+            console.log('Auth request:', { action, username, hasPassword: !!password });
 
             if (!username || !password) {
-                return badRequest(res, 'Usuário e senha são obrigatórios');
+                return res.status(400).json({ error: 'Usuário e senha são obrigatórios' });
             }
 
             if (action === 'register') {
                 // Registrar novo usuário
                 if (!name) {
-                    return badRequest(res, 'Nome é obrigatório');
+                    return res.status(400).json({ error: 'Nome é obrigatório' });
                 }
 
                 if (password.length < 4) {
-                    return badRequest(res, 'Senha deve ter no mínimo 4 caracteres');
+                    return res.status(400).json({ error: 'Senha deve ter no mínimo 4 caracteres' });
                 }
 
                 // Verificar se já existe
@@ -41,7 +43,7 @@ module.exports = async (req, res) => {
                 );
 
                 if (existing.rows.length > 0) {
-                    return badRequest(res, 'Este usuário já existe');
+                    return res.status(400).json({ error: 'Este usuário já existe' });
                 }
 
                 // Criptografar senha

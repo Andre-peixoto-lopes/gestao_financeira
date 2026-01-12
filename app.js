@@ -107,7 +107,8 @@ async function loadUserData() {
             name: f.description,
             value: parseFloat(f.value),
             dueDay: f.day,
-            paid: f.paid
+            paid: f.paid,
+            paidMonths: f.paid_months || []
         }));
 
         state.installments = installments.map(i => ({
@@ -123,8 +124,10 @@ async function loadUserData() {
         state.savingsBoxes = savings.map(s => ({
             id: s.id,
             name: s.name,
-            goal: parseFloat(s.goal),
-            currentAmount: parseFloat(s.current_value)
+            goal: parseFloat(s.goal || 0),
+            currentAmount: parseFloat(s.current_value || 0),
+            icon: s.icon || '🐷',
+            color: s.color || '#6366f1'
         }));
 
         state.savingsPercentage = settings.savingsPercentage || 20;
@@ -572,8 +575,13 @@ async function handleFixedSubmit(e) {
 }
 
 async function toggleFixedPaid(id) {
+    const monthKey = `${state.currentMonth.getFullYear()}-${String(state.currentMonth.getMonth() + 1).padStart(2, '0')}`;
+    const fixed = state.fixedExpenses.find(f => f.id === id);
+    const isPaid = fixed && fixed.paidMonths && fixed.paidMonths.includes(monthKey);
+    
     try {
-        await apiRequest('/fixed', 'POST', { action: 'pay', id });
+        const action = isPaid ? 'unpay' : 'pay';
+        await apiRequest('/fixed', 'POST', { action, id });
         await loadUserData();
         renderFixedExpenses();
         renderDashboard();
@@ -822,12 +830,14 @@ function renderSavingsBoxes() {
 
     container.innerHTML = state.savingsBoxes.map(s => {
         const progress = s.goal > 0 ? Math.min((s.currentAmount / s.goal) * 100, 100) : 0;
+        const icon = s.icon || '🐷';
+        const color = s.color || '#6366f1';
         return `
             <div class="savings-box">
-                <div class="savings-box-header" style="background: ${s.color}">
+                <div class="savings-box-header" style="background: ${color}">
                     <div class="savings-box-title">
-                        <span class="savings-box-icon">${s.icon}</span>
-                        <span class="savings-box-name">${s.name}</span>
+                        <span class="savings-box-icon">${icon}</span>
+                        <span class="savings-box-name">${s.name || 'Caixinha'}</span>
                     </div>
                     <button class="savings-box-delete" onclick="deleteSavings(${s.id})">×</button>
                 </div>
@@ -839,7 +849,7 @@ function renderSavingsBoxes() {
                                 <span>Meta: ${formatCurrency(s.goal)}</span>
                                 <span>${progress.toFixed(0)}%</span>
                             </div>
-                            <div class="progress-bar"><div class="progress-fill" style="width: ${progress}%; background: ${s.color}"></div></div>
+                            <div class="progress-bar"><div class="progress-fill" style="width: ${progress}%; background: ${color}"></div></div>
                         </div>
                     ` : ''}
                     <div class="savings-box-actions">
@@ -866,22 +876,33 @@ function renderDashboard() {
     const income = monthTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.value, 0);
     const expenses = monthTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.value, 0);
 
+    // Despesas fixas pendentes (não pagas este mês)
     const pendingFixed = state.fixedExpenses
         .filter(f => !f.paidMonths || !f.paidMonths.includes(monthKey))
         .reduce((sum, f) => sum + f.value, 0);
 
+    // Parcelas pendentes
     const pendingInstallments = state.installments
         .filter(i => i.paidInstallments < i.totalInstallments)
         .reduce((sum, i) => sum + (i.totalValue / i.totalInstallments), 0);
 
     const pendingTotal = pendingFixed + pendingInstallments;
     const totalSavings = state.savingsBoxes.reduce((sum, s) => sum + s.currentAmount, 0);
-    const balance = income - expenses - pendingTotal - totalSavings;
+    
+    // Saldo = Receita - Despesas (já pagas/transações)
+    // Não subtrai pendentes nem caixinhas do saldo real
+    const balance = income - expenses;
 
     document.getElementById('total-income').textContent = formatCurrency(income);
-    document.getElementById('total-expense').textContent = formatCurrency(expenses + pendingTotal);
+    document.getElementById('total-expense').textContent = formatCurrency(expenses);
     document.getElementById('total-balance').textContent = formatCurrency(balance);
     document.getElementById('total-savings').textContent = formatCurrency(totalSavings);
+    
+    // Mostrar pendentes separadamente se quiser
+    const pendingEl = document.getElementById('total-pending');
+    if (pendingEl) {
+        pendingEl.textContent = formatCurrency(pendingTotal);
+    }
 
     const balanceEl = document.getElementById('total-balance');
     balanceEl.style.color = balance >= 0 ? 'var(--success-color)' : 'var(--danger-color)';

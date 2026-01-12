@@ -60,9 +60,15 @@ async function initDatabase() {
                 value DECIMAL(12,2) NOT NULL,
                 day INTEGER NOT NULL,
                 paid BOOLEAN DEFAULT FALSE,
+                paid_months JSONB DEFAULT '[]'::jsonb,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
+        
+        // Adicionar coluna paid_months se não existir
+        await client.query(`
+            ALTER TABLE fixed_expenses ADD COLUMN IF NOT EXISTS paid_months JSONB DEFAULT '[]'::jsonb
+        `).catch(() => {});
 
         // Tabela de parcelas
         await client.query(`

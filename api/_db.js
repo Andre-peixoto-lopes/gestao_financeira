@@ -44,12 +44,18 @@ async function initDatabase() {
                 id SERIAL PRIMARY KEY,
                 user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 type VARCHAR(20) NOT NULL,
+                category VARCHAR(50) DEFAULT 'outros',
                 description VARCHAR(255) NOT NULL,
                 value DECIMAL(12,2) NOT NULL,
                 date DATE NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
+        
+        // Adicionar coluna category se não existir
+        await client.query(`
+            ALTER TABLE transactions ADD COLUMN IF NOT EXISTS category VARCHAR(50) DEFAULT 'outros'
+        `).catch(() => {});
 
         // Tabela de despesas fixas
         await client.query(`

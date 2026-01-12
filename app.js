@@ -99,6 +99,7 @@ async function loadUserData() {
             type: t.type,
             value: parseFloat(t.value),
             description: t.description,
+            category: t.category || 'outros',
             date: t.date
         }));
 
@@ -1107,7 +1108,22 @@ function formatCurrency(value) {
 }
 
 function formatDate(dateString) {
-    return new Date(dateString + 'T00:00:00').toLocaleDateString('pt-BR');
+    if (!dateString) return '';
+    try {
+        // Lidar com formato ISO ou YYYY-MM-DD
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            // Tentar formato YYYY-MM-DD
+            const parts = dateString.split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            return dateString;
+        }
+        return date.toLocaleDateString('pt-BR');
+    } catch {
+        return dateString || '';
+    }
 }
 
 function formatCategory(category) {

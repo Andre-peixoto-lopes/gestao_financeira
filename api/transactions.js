@@ -31,15 +31,15 @@ module.exports = async (req, res) => {
 
         // POST - Criar transação
         if (req.method === 'POST') {
-            const { type, value, description, date } = req.body;
+            const { type, value, description, date, category } = req.body;
 
             if (!type || !value || !description || !date) {
                 return badRequest(res, 'Todos os campos são obrigatórios');
             }
 
             const result = await pool.query(
-                'INSERT INTO transactions (user_id, type, description, value, date) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-                [userId, type, description, value, date]
+                'INSERT INTO transactions (user_id, type, category, description, value, date) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+                [userId, type, category || 'outros', description, value, date]
             );
 
             return res.status(201).json({ id: result.rows[0].id, message: 'Transação criada' });

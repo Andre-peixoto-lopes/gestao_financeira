@@ -12,7 +12,15 @@ module.exports = async (req, res) => {
         return res.status(200).end();
     }
 
+    // Sempre retornar JSON, mesmo em caso de erro
+    res.setHeader('Content-Type', 'application/json');
+
     try {
+        // Testar se temos as variáveis de ambiente
+        if (!process.env.DATABASE_URL) {
+            return res.status(500).json({ error: 'DATABASE_URL não configurada' });
+        }
+
         await initDatabase();
         const pool = getPool();
 

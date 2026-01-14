@@ -87,14 +87,14 @@ async function loadUserData() {
     try {
         // Carregar todos os dados em paralelo
         const [transactions, fixedExpenses, installments, savings, settings] = await Promise.all([
-            apiRequest('/transactions'),
-            apiRequest('/fixed'),
-            apiRequest('/installments'),
-            apiRequest('/savings'),
-            apiRequest('/settings')
+            apiRequest('/transactions').catch(() => []),
+            apiRequest('/fixed').catch(() => []),
+            apiRequest('/installments').catch(() => []),
+            apiRequest('/savings').catch(() => []),
+            apiRequest('/settings').catch(() => ({}))
         ]);
 
-        state.transactions = transactions.map(t => ({
+        state.transactions = (transactions || []).map(t => ({
             id: t.id,
             type: t.type,
             value: parseFloat(t.value),
@@ -103,7 +103,7 @@ async function loadUserData() {
             date: t.date
         }));
 
-        state.fixedExpenses = fixedExpenses.map(f => ({
+        state.fixedExpenses = (fixedExpenses || []).map(f => ({
             id: f.id,
             name: f.description,
             value: parseFloat(f.value),
@@ -112,7 +112,7 @@ async function loadUserData() {
             paidMonths: f.paid_months || []
         }));
 
-        state.installments = installments.map(i => ({
+        state.installments = (installments || []).map(i => ({
             id: i.id,
             description: i.description,
             category: i.category || 'outros',
@@ -123,7 +123,7 @@ async function loadUserData() {
             startDate: i.start_date
         }));
 
-        state.savingsBoxes = savings.map(s => ({
+        state.savingsBoxes = (savings || []).map(s => ({
             id: s.id,
             name: s.name,
             goal: parseFloat(s.goal || 0),
@@ -132,14 +132,9 @@ async function loadUserData() {
             color: s.color || '#6366f1'
         }));
 
-        state.savingsPercentage = settings.savingsPercentage || 20;
-
-        console.log('📊 Dados carregados do servidor');
+        console.log('📊 Dados carregados do servidor:', state);
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
-        if (error.message.includes('Token')) {
-            handleLogout();
-        }
     }
 }
 
@@ -356,7 +351,6 @@ function showMainScreen(user) {
     document.getElementById('login-screen').classList.remove('active');
     document.getElementById('main-screen').classList.add('active');
     document.getElementById('user-display').textContent = user.name;
-    document.getElementById('savings-percentage').value = state.savingsPercentage;
     
     updateMonthDisplay();
     renderDashboard();

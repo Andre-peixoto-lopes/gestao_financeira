@@ -95,6 +95,7 @@
             <button class="nav-btn" data-page="installments">📅 Parcelas</button>
             <button class="nav-btn" data-page="savings">🐷 Caixinhas</button>
             <button class="nav-btn" data-page="reports">📈 Relatórios</button>
+            <button class="btn btn-danger mobile-logout" id="mobile-logout-btn">🚪 Sair</button>
         </div>
 
         <main class="main-content">
@@ -203,17 +204,6 @@
                 <div class="page-header">
                     <h2>Caixinhas de Poupança</h2>
                     <button class="btn btn-primary" id="add-savings-btn">+ Nova Caixinha</button>
-                </div>
-
-                <div class="savings-config">
-                    <div class="config-item">
-                        <label>Porcentagem para investir/guardar:</label>
-                        <div class="input-with-suffix">
-                            <input type="number" id="savings-percentage" min="0" max="100" value="20">
-                            <span>%</span>
-                        </div>
-                        <button class="btn btn-secondary" id="save-percentage">Salvar</button>
-                    </div>
                 </div>
 
                 <div id="savings-boxes" class="savings-grid"></div>

@@ -311,6 +311,21 @@ body {
     display: flex;
 }
 
+.mobile-logout {
+    margin-top: 8px;
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.mobile-logout:hover {
+    background: #c0392b;
+}
+
 .btn-logout {
     margin-left: 16px;
 }

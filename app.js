@@ -154,6 +154,7 @@ function initEventListeners() {
     document.getElementById('login-form').addEventListener('submit', handleLogin);
     document.getElementById('register-form').addEventListener('submit', handleRegister);
     document.getElementById('logout-btn').addEventListener('click', handleLogout);
+    document.getElementById('mobile-logout-btn').addEventListener('click', handleLogout);
 
     // Navegação
     document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -179,18 +180,6 @@ function initEventListeners() {
     document.getElementById('installment-form').addEventListener('submit', handleInstallmentSubmit);
     document.getElementById('savings-form').addEventListener('submit', handleSavingsSubmit);
     document.getElementById('savings-action-form').addEventListener('submit', handleSavingsAction);
-
-    // Porcentagem de poupança
-    document.getElementById('save-percentage').addEventListener('click', async () => {
-        const percentage = parseInt(document.getElementById('savings-percentage').value) || 0;
-        try {
-            await apiRequest('/settings', 'PUT', { savingsPercentage: percentage });
-            state.savingsPercentage = percentage;
-            alert('Porcentagem salva com sucesso!');
-        } catch (error) {
-            alert('Erro ao salvar porcentagem');
-        }
-    });
 
     // Divisão de despesas
     document.getElementById('trans-split').addEventListener('change', toggleSplitSection);
@@ -647,6 +636,7 @@ async function handleInstallmentSubmit(e) {
     
     const totalValue = parseFloat(document.getElementById('inst-total').value);
     const totalInstallments = parseInt(document.getElementById('inst-installments').value);
+    const paidInstallments = parseInt(document.getElementById('inst-paid').value) || 0;
     
     const installment = {
         description: document.getElementById('inst-description').value,
@@ -654,6 +644,7 @@ async function handleInstallmentSubmit(e) {
         totalValue: totalValue,
         installmentValue: totalValue / totalInstallments,
         totalInstallments: totalInstallments,
+        paidInstallments: paidInstallments,
         startDate: document.getElementById('inst-start-date').value
     };
 
@@ -661,8 +652,7 @@ async function handleInstallmentSubmit(e) {
         const result = await apiRequest('/installments', 'POST', installment);
         state.installments.push({
             id: result.id,
-            ...installment,
-            paidInstallments: 0
+            ...installment
         });
         closeAllModals();
         renderInstallments();

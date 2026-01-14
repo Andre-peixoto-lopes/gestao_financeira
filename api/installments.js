@@ -73,11 +73,11 @@ module.exports = async (req, res) => {
                 return badRequest(res, 'Todos os campos são obrigatórios');
             }
 
-            const { category } = req.body;
+            const { category, paidInstallments } = req.body;
 
             const result = await pool.query(
-                'INSERT INTO installments (user_id, description, category, total_value, installment_value, total_installments, start_date) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
-                [userId, description, category || 'outros', totalValue, installmentValue, totalInstallments, startDate]
+                'INSERT INTO installments (user_id, description, category, total_value, installment_value, total_installments, paid_installments, start_date) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
+                [userId, description, category || 'outros', totalValue, installmentValue, totalInstallments, paidInstallments || 0, startDate]
             );
 
             return res.status(201).json({ id: result.rows[0].id, message: 'Parcela criada' });

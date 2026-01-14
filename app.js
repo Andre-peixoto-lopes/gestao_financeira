@@ -132,9 +132,8 @@ async function loadUserData() {
             color: s.color || '#6366f1'
         }));
 
-        console.log('📊 Dados carregados do servidor:', state);
     } catch (error) {
-        console.error('Erro ao carregar dados:', error);
+        console.error('Erro ao carregar dados');
     }
 }
 

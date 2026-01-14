@@ -115,6 +115,7 @@ async function loadUserData() {
         state.installments = installments.map(i => ({
             id: i.id,
             description: i.description,
+            category: i.category || 'outros',
             totalValue: parseFloat(i.total_value),
             installmentValue: parseFloat(i.installment_value),
             totalInstallments: i.total_installments,
@@ -649,6 +650,7 @@ async function handleInstallmentSubmit(e) {
     
     const installment = {
         description: document.getElementById('inst-description').value,
+        category: document.getElementById('inst-category').value || 'outros',
         totalValue: totalValue,
         installmentValue: totalValue / totalInstallments,
         totalInstallments: totalInstallments,
@@ -751,10 +753,15 @@ function renderInstallments() {
 async function handleSavingsSubmit(e) {
     e.preventDefault();
 
+    const selectedIcon = document.querySelector('#icon-selector .icon-option.selected');
+    const selectedColor = document.querySelector('#color-selector .color-option.selected');
+
     const savings = {
         name: document.getElementById('savings-name').value,
         goal: parseFloat(document.getElementById('savings-goal').value) || 0,
-        currentValue: parseFloat(document.getElementById('savings-initial').value) || 0
+        currentValue: parseFloat(document.getElementById('savings-initial').value) || 0,
+        icon: selectedIcon ? selectedIcon.dataset.icon : '🐷',
+        color: selectedColor ? selectedColor.dataset.color : '#6366f1'
     };
 
     try {
@@ -763,7 +770,9 @@ async function handleSavingsSubmit(e) {
             id: result.id,
             name: savings.name,
             goal: savings.goal,
-            currentAmount: savings.currentValue
+            currentAmount: savings.currentValue,
+            icon: savings.icon,
+            color: savings.color
         });
         closeAllModals();
         renderSavingsBoxes();

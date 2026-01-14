@@ -69,9 +69,11 @@ module.exports = async (req, res) => {
                 return badRequest(res, 'Nome é obrigatório');
             }
 
+            const { icon, color } = req.body;
+
             const result = await pool.query(
-                'INSERT INTO savings_boxes (user_id, name, goal, current_value) VALUES ($1, $2, $3, $4) RETURNING id',
-                [userId, name, goal || 0, currentValue || 0]
+                'INSERT INTO savings_boxes (user_id, name, icon, color, goal, current_value) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+                [userId, name, icon || '🐷', color || '#6366f1', goal || 0, currentValue || 0]
             );
 
             return res.status(201).json({ id: result.rows[0].id, message: 'Caixinha criada' });

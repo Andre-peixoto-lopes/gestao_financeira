@@ -82,6 +82,7 @@ async function initDatabase() {
                 id SERIAL PRIMARY KEY,
                 user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 description VARCHAR(255) NOT NULL,
+                category VARCHAR(50) DEFAULT 'outros',
                 total_value DECIMAL(12,2) NOT NULL,
                 installment_value DECIMAL(12,2) NOT NULL,
                 total_installments INTEGER NOT NULL,
@@ -90,6 +91,9 @@ async function initDatabase() {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
+        
+        // Adicionar coluna category se não existir
+        await client.query(`ALTER TABLE installments ADD COLUMN IF NOT EXISTS category VARCHAR(50) DEFAULT 'outros'`).catch(() => {});
 
         // Tabela de caixinhas
         await client.query(`
@@ -97,11 +101,17 @@ async function initDatabase() {
                 id SERIAL PRIMARY KEY,
                 user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 name VARCHAR(100) NOT NULL,
+                icon VARCHAR(10) DEFAULT '🐷',
+                color VARCHAR(20) DEFAULT '#6366f1',
                 goal DECIMAL(12,2) DEFAULT 0,
                 current_value DECIMAL(12,2) DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
+        
+        // Adicionar colunas icon e color se não existirem
+        await client.query(`ALTER TABLE savings_boxes ADD COLUMN IF NOT EXISTS icon VARCHAR(10) DEFAULT '🐷'`).catch(() => {});
+        await client.query(`ALTER TABLE savings_boxes ADD COLUMN IF NOT EXISTS color VARCHAR(20) DEFAULT '#6366f1'`).catch(() => {});
 
         console.log('Banco de dados inicializado!');
     } finally {

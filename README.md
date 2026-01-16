@@ -1,4 +1,5 @@
 # 📊 Gestão Financeira
+Esse projeto foi desenvolvido defendendo a tese de que quando um desenvolvedor não encontra uma ferramenta no mercado, ele a cria.
 
 Aplicação web desenvolvida para suprir a necessidade de uma ferramenta **simples, intuitiva e dinâmica** para controle financeiro pessoal, permitindo o acompanhamento detalhado de **receitas, despesas, gastos fixos, compras parceladas e relatórios financeiros**.
 
@@ -152,7 +153,6 @@ Painel dedicado à administração do sistema, permitindo:
 
 - Gerenciamento de usuários
 - Visualização de dados globais
-- Controle e manutenção da aplicação
 
 ![Admin](https://github.com/user-attachments/assets/e90da95c-09af-44aa-a37c-290ac3edc30d)
 ![Admin](https://github.com/user-attachments/assets/925bba18-0eef-4da8-b516-69ff2d704ecf)

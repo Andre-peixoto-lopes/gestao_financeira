@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'jwt-secret-key-financeiro-2024';
-const ADMIN_SECRET = process.env.ADMIN_SECRET || 'admin-secret-key-financeiro-2024';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+const JWT_SECRET = process.env.JWT_SECRET 
+const ADMIN_SECRET = process.env.ADMIN_SECRET 
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD 
 
 function generateToken(userId) {
     return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '7d' });

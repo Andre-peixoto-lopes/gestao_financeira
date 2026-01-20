@@ -470,8 +470,8 @@ app.put('/api/settings', authMiddleware, (req, res) => {
 // ===== ROTAS DE ADMINISTRADOR =====
 
 // Senha do admin (em produção, use variável de ambiente)
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
-const ADMIN_SECRET = process.env.ADMIN_SECRET || 'admin-secret-key-financeiro-2024';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ADMIN_SECRET = process.env.ADMIN_SECRET;
 
 // Login admin
 app.post('/api/admin/login', async (req, res) => {
